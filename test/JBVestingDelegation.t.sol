@@ -138,6 +138,31 @@ contract JBVestingDelegationTest is Test {
         vm.stopPrank();
     }
 
+    function testAddToVesting_revertIfASecondCallLowerTheVestingPeriod()
+        public
+    {
+        vm.startPrank(authorizedSender);
+        jbxToken.approve(address(vestingContract), amountToVest);
+
+        vestingContract.addToVesting(
+            amountToVest / 2,
+            block.timestamp + 10,
+            beneficiary
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "JBVestingDelegation_VestingPeriodDecrease()"
+            )
+        );
+        vestingContract.addToVesting(
+            amountToVest,
+            block.timestamp + 5,
+            beneficiary
+        );
+        vm.stopPrank();
+    }
+
     function testUnvest_unvestWholeAmountAtExpiry(uint128 delay) public {
         vm.assume(delay % 2 == 0 && delay > 0); // Avoid rounding errors
         vm.startPrank(authorizedSender);
