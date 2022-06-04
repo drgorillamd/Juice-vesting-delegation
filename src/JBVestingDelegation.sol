@@ -21,6 +21,7 @@ contract JBVestingDelegation {
     error JBVestingDelegation_BeneficiariesMismatch();
     error JBVestingDelegation_UnauthorizedSender();
 
+    uint256 vestingBeginning;
     uint256 endOfVesting;
     uint256 totalWithdraw;
 
@@ -52,6 +53,8 @@ contract JBVestingDelegation {
         if (msg.sender != authorizedSender)
             revert JBVestingDelegation_UnauthorizedSender();
 
+        if (vestingBeginning == 0) vestingBeginning = block.timestamp;
+
         endOfVesting = _timestampEnd;
 
         token.transferFrom(msg.sender, address(this), _amount);
@@ -66,7 +69,9 @@ contract JBVestingDelegation {
         uint256 _balance = token.balanceOf(address(this));
 
         if (endOfVesting > block.timestamp) {
-            maxWithdraw = (_balance * block.timestamp) / endOfVesting;
+            maxWithdraw =
+                (_balance * (block.timestamp - vestingBeginning)) /
+                (endOfVesting - vestingBeginning);
             maxWithdraw = maxWithdraw > totalWithdraw
                 ? maxWithdraw - totalWithdraw
                 : 0;

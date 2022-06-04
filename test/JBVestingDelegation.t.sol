@@ -37,6 +37,8 @@ contract JBVestingDelegationTest is Test {
             beneficiary,
             authorizedSender
         );
+
+        vm.warp(block.timestamp + 10);
     }
 
     function testAddToVesting_newVestingIfCorrectBeneficiary() public {
@@ -50,7 +52,16 @@ contract JBVestingDelegationTest is Test {
             beneficiary
         );
 
-        assertTrue(true);
+        // 0 token are immediatably claimable
+        assertEq(vestingContract.currentlyClaimable(), 0);
+
+        // Half of the token are claimable after half the duration of vesting
+        vm.warp(block.timestamp + (delay / 2));
+        assertEq(vestingContract.currentlyClaimable(), amountToVest / 2);
+
+        // All the token are claimable after the length of vesting
+        vm.warp(block.timestamp + (delay / 2));
+        assertEq(vestingContract.currentlyClaimable(), amountToVest);
     }
 
     function testAddToVesting_extendVestingIfCorrectBeneficiary() public {
