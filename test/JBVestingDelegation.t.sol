@@ -181,6 +181,13 @@ contract JBVestingDelegationTest is Test {
             jbxToken.balanceOf(beneficiary)
         );
 
+        // Nothing more to claim
+        vestingContract.unvest();
+        assertEq(
+            balanceBeforeUnvesting + amountToVest / 2,
+            jbxToken.balanceOf(beneficiary)
+        );
+
         // Claim after the second half/the whole vesting period -> the rest of the amount
         vm.warp(block.timestamp + delay / 2);
         balanceBeforeUnvesting = jbxToken.balanceOf(beneficiary);

@@ -62,19 +62,17 @@ contract JBVestingDelegation {
 
     function unvest() external {
         uint256 claimable = currentlyClaimable();
+        vestingBeginning = block.timestamp; // withdrawing during the vesting period is same as restarting a new vesting with the new balance left
         token.transfer(beneficiary, claimable);
     }
 
-    function currentlyClaimable() public view returns (uint256 maxWithdraw) {
+    function currentlyClaimable() public view returns (uint256 claimable) {
         uint256 _balance = token.balanceOf(address(this));
 
         if (endOfVesting > block.timestamp) {
-            maxWithdraw =
+            claimable =
                 (_balance * (block.timestamp - vestingBeginning)) /
                 (endOfVesting - vestingBeginning);
-            maxWithdraw = maxWithdraw > totalWithdraw
-                ? maxWithdraw - totalWithdraw
-                : 0;
-        } else maxWithdraw = _balance;
+        } else claimable = _balance;
     }
 }
