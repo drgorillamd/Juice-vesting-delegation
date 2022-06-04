@@ -18,8 +18,13 @@ import "./interfaces/IDelegateRegistry.sol";
 */
 
 contract JBVestingDelegation {
+    // Throws in addToVesting when the beneficiary passed as an argument differs from the beneficiary of the vesting
     error JBVestingDelegation_BeneficiariesMismatch();
+
+    // Throws in addToVesting when the caller is not the authorized token sender
     error JBVestingDelegation_UnauthorizedSender();
+
+    // Throws in addToVesting when a new deposit has a vesting period ending before the period previously defined
     error JBVestingDelegation_VestingPeriodDecrease();
 
     // The begining of the vesting (as an unix timestamp)
